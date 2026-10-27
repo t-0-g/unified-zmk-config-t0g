@@ -1,0 +1,10 @@
+config SOSHO_TRACKPAD_GESTURES
+    bool "Trackpad gestures (tap / circular edge scroll) for Cirque Pinnacle"
+    default y
+    depends on DT_HAS_SOSHO_TRACKPAD_GESTURES_ENABLED
+    depends on INPUT
+
+config SOSHO_TRACKPAD_GESTURES_INIT_PRIORITY
+    int "Trackpad gestures init priority"
+    default INPUT_INIT_PRIORITY
+    depends on SOSHO_TRACKPAD_GESTURES

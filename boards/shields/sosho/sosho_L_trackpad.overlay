@@ -1,11 +1,45 @@
 #include "sosho_L.dtsi"
 
+/*
+左手のトラックパッドは絶対座標モードで動かし、
+glidepoint_gestures でタップ・外周スクロールを判定してから右手側へ送ります。
+
+・タップ        : 左クリック (2回続けてタップでダブルクリック)
+・タップしてドラッグ : タップ直後にもう一度触れて動かす (または押さえ続ける) と
+                       左ボタンを押したまま移動。指を離すとボタンも離す
+・外周をなぞる  : 縦スクロール (時計回りで下)
+・それ以外      : ポインタ移動
+
+調整できる値 (glidepoint_gestures に書きます)
+  tap-term-ms         = <200>;  これより短いタッチをタップとみなす
+  tap-move-threshold  = <60>;   タップとみなす最大移動量 (約50 = 1mm)
+  drag-window-ms      = <180>;  タップ後この時間内に触れるとドラッグ (0で無効)
+  scroll-edge-percent = <70>;   外周とみなす範囲 (中心からの距離の%)
+  scroll-tick-degrees = <15>;   ホイール1目盛り分の回転角度
+  scroll-invert;                スクロール方向を反転
+
+上下 / 左右の向きが逆になる場合は &glidepoint の invert-x / invert-y を付け外ししてください。
+*/
+
 &spi0 { status = "okay"; };
 &glidepoint {
     status = "okay";
+    data-mode = "absolute";
+    clipping-enable;
+    /* 指を離したことを知るための空パケット */
+    idle-packets-count = <3>;
     invert-x;
+    invert-y;
 };
+
+/ {
+    glidepoint_gestures: glidepoint_gestures {
+        compatible = "sosho,trackpad-gestures";
+        device = <&glidepoint>;
+    };
+};
+
 &glidepoint_split {
     status = "okay";
-    device = <&glidepoint>;
+    device = <&glidepoint_gestures>;
 };

@@ -1,0 +1,67 @@
+description: |
+  Cirque Pinnacle (data-mode = "absolute") の出力から
+  ポインタ移動・タップクリック・外周スクロールを生成する仮想inputデバイス。
+  x/y の範囲は Pinnacle の active-range-* と揃えること。
+
+compatible: "sosho,trackpad-gestures"
+
+include: base.yaml
+
+properties:
+  device:
+    type: phandle
+    required: true
+    description: 絶対座標モードの Pinnacle
+
+  x-min:
+    type: int
+    default: 128
+  x-max:
+    type: int
+    default: 1920
+  y-min:
+    type: int
+    default: 64
+  y-max:
+    type: int
+    default: 1472
+
+  tap-term-ms:
+    type: int
+    default: 200
+    description: これより短く触れて離したらタップ (クリック) とみなす
+
+  tap-move-threshold:
+    type: int
+    default: 60
+    description: |
+      タップとみなす最大移動量 (Pinnacle の座標単位、約50単位 = 1mm)。
+      これを超えて動くとポインタ移動 / スクロールを開始する。
+
+  tap-press-ms:
+    type: int
+    default: 30
+    description: タップ時にボタンを押している時間
+
+  drag-window-ms:
+    type: int
+    default: 180
+    description: |
+      タップ後この時間内にもう一度触れて動かす (または押さえ続ける) とドラッグになる。
+      1回タップのクリックはこの時間だけ遅れて出る。0 でドラッグ無効 (クリックは即時)。
+
+  scroll-edge-percent:
+    type: int
+    default: 70
+    description: |
+      中心からの距離がパッド半径のこの割合以上の位置から
+      円周方向になぞり始めると外周スクロールになる
+
+  scroll-tick-degrees:
+    type: int
+    default: 15
+    description: ホイール1目盛り分の回転角度 (度)
+
+  scroll-invert:
+    type: boolean
+    description: スクロール方向を反転 (デフォルトは時計回りで下スクロール)
