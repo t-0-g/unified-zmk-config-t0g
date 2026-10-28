@@ -14,6 +14,7 @@ glidepoint_gestures でタップ・外周スクロールを判定してから右
   tap-term-ms         = <200>;  これより短いタッチをタップとみなす
   tap-move-threshold  = <60>;   タップとみなす最大移動量 (約50 = 1mm)
   drag-window-ms      = <180>;  タップ後この時間内に触れるとドラッグ (0で無効)
+  move-scale          = <1 2>;  カーソル速度 <分子 分母>。<1 2>で半分、<1 1>で等倍
   scroll-edge-percent = <70>;   外周とみなす範囲 (中心からの距離の%)
   scroll-tick-degrees = <15>;   ホイール1目盛り分の回転角度
   scroll-invert;                スクロール方向を反転
@@ -36,6 +37,7 @@ glidepoint_gestures でタップ・外周スクロールを判定してから右
     glidepoint_gestures: glidepoint_gestures {
         compatible = "sosho,trackpad-gestures";
         device = <&glidepoint>;
+        move-scale = <1 2>;
     };
 };
 

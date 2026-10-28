@@ -50,6 +50,13 @@ properties:
       タップ後この時間内にもう一度触れて動かす (または押さえ続ける) とドラッグになる。
       1回タップのクリックはこの時間だけ遅れて出る。0 でドラッグ無効 (クリックは即時)。
 
+  move-scale:
+    type: array
+    default: [1, 1]
+    description: |
+      ポインタ移動量の倍率 <分子 分母>。<1 2> で半分の速さ。
+      端数は次回に持ち越すので、ゆっくり動かしても止まらない。
+
   scroll-edge-percent:
     type: int
     default: 70

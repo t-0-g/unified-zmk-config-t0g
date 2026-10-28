@@ -42,6 +42,8 @@ struct tpg_config {
     int32_t tap_move_threshold;
     int32_t tap_press_ms;
     int32_t drag_window_ms;
+    int32_t move_scale_mul;
+    int32_t move_scale_div;
     int32_t scroll_edge_percent;
     int32_t scroll_tick_mdeg;
     bool scroll_invert;
@@ -60,6 +62,8 @@ struct tpg_data {
     int32_t start_x, start_y;
     int32_t prev_x, prev_y;
     int32_t scroll_acc_mdeg;
+    /* 移動量を縮小したときの端数 */
+    int32_t rem_x, rem_y;
     bool start_on_edge;
     /* タップ直後の2回目のタッチ */
     bool after_tap;
@@ -197,6 +201,7 @@ static void tpg_handle_touch(const struct tpg_config *cfg, struct tpg_data *data
         data->start_y = data->prev_y = y;
         data->start_on_edge = tpg_on_edge(cfg, nx, ny);
         data->scroll_acc_mdeg = 0;
+        data->rem_x = data->rem_y = 0;
         return;
     }
 
@@ -224,9 +229,16 @@ static void tpg_handle_touch(const struct tpg_config *cfg, struct tpg_data *data
 
     switch (data->state) {
     case TPG_MOVE:
-    case TPG_DRAG:
-        tpg_queue_motion(data, x - data->prev_x, y - data->prev_y, 0);
+    case TPG_DRAG: {
+        int32_t sx = (x - data->prev_x) * cfg->move_scale_mul + data->rem_x;
+        int32_t sy = (y - data->prev_y) * cfg->move_scale_mul + data->rem_y;
+
+        /* 端数は次回に持ち越して、ゆっくり動かしても止まらないようにする */
+        data->rem_x = sx % cfg->move_scale_div;
+        data->rem_y = sy % cfg->move_scale_div;
+        tpg_queue_motion(data, sx / cfg->move_scale_div, sy / cfg->move_scale_div, 0);
         break;
+    }
     case TPG_SCROLL: {
         data->scroll_acc_mdeg +=
             tpg_angle_delta_mdeg(cfg, data->prev_x, data->prev_y, x, y);
@@ -405,6 +417,7 @@ static int tpg_init(const struct device *dev) {
     BUILD_ASSERT(DT_INST_PROP(n, x_max) > DT_INST_PROP(n, x_min), "x-max must be > x-min");      \
     BUILD_ASSERT(DT_INST_PROP(n, y_max) > DT_INST_PROP(n, y_min), "y-max must be > y-min");      \
     BUILD_ASSERT(DT_INST_PROP(n, scroll_tick_degrees) > 0, "scroll-tick-degrees must be > 0");   \
+    BUILD_ASSERT(DT_INST_PROP_BY_IDX(n, move_scale, 1) > 0, "move-scale divisor must be > 0");   \
     static struct tpg_data tpg_data_##n;                                                           \
     static const struct tpg_config tpg_config_##n = {                                              \
         .x_min = DT_INST_PROP(n, x_min),                                                           \
@@ -415,6 +428,8 @@ static int tpg_init(const struct device *dev) {
         .tap_move_threshold = DT_INST_PROP(n, tap_move_threshold),                                 \
         .tap_press_ms = DT_INST_PROP(n, tap_press_ms),                                             \
         .drag_window_ms = DT_INST_PROP(n, drag_window_ms),                                         \
+        .move_scale_mul = DT_INST_PROP_BY_IDX(n, move_scale, 0),                                   \
+        .move_scale_div = DT_INST_PROP_BY_IDX(n, move_scale, 1),                                   \
         .scroll_edge_percent = DT_INST_PROP(n, scroll_edge_percent),                               \
         .scroll_tick_mdeg = DT_INST_PROP(n, scroll_tick_degrees) * 1000,                           \
         .scroll_invert = DT_INST_PROP(n, scroll_invert),                                           \
