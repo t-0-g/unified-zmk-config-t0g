@@ -30,9 +30,36 @@ https://zmk.dev/docs/keymaps/input-processors
 
 &spi1 { status = "okay"; };
 &trackball { status = "okay"; };
+/*
+オートマウスレイヤー
+トラックボールを動かすとマウスレイヤー(レイヤー5)が有効になります。
+・&zip_temp_layer 5 800 : 最後に動かしてから800msでレイヤー5を解除
+・require-prior-idle-ms : 文字入力の直後この時間はボールが触れても有効にしない
+・excluded-positions    : 押してもマウスレイヤーを解除しないキー (I O P L)
+*/
+&zip_temp_layer {
+	require-prior-idle-ms = <250>;
+	excluded-positions = <8 9 10 21>;
+};
+
 &trackball_listener {
 	status = "okay";
-	input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>;
+	input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+	                   <&zip_temp_layer 5 800>;
+
+	/*
+	スクロールモード (レイヤー4、マウスレイヤーでLを押している間)
+	・&zip_scroll_scaler 1 8 : ボールの動き1/8をスクロール量に。速すぎる/遅すぎるときはここを調整
+	・&zip_scroll_transform  : ボールを奥に転がすと上スクロール。逆にしたい場合はこの行を消す
+	*/
+	scroller {
+		layers = <4>;
+		input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+		                   <&zip_xy_to_scroll_mapper>,
+		                   <&zip_scroll_scaler 1 8>,
+		                   <&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,
+		                   <&zip_temp_layer 5 800>;
+	};
 };
 
 &glidepoint_split { status = "okay"; };

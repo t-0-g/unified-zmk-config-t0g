@@ -107,12 +107,29 @@ keymap {
             &trans &trans               &trans &trans      &trans  &out OUT_BLE                                    &trans         &trans
         >;
     };
+    //レイヤー4: スクロールモード
+    //マウスレイヤーでLを押している間、トラックボールがスクロールになります。
+    //(スクロールへの変換はsosho_R_trackball.overlayで設定しています)
     scroll {
-        status = "reserved";
+        bindings = <
+            &trans &trans &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans
+            &trans &trans &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans
+            &trans &trans &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans
+            &trans &trans               &trans &trans      &trans &trans               &trans &trans
+        >;
     };
 
-    extra2 {
-        status = "reserved";
+    //レイヤー5: マウスレイヤー
+    //右手のトラックボールを動かすと自動で有効になり、
+    //しばらく操作しないか、I O P L 以外のキーを押すと元に戻ります。
+    //I:左クリック O:中クリック P:右クリック L:押している間スクロールモード
+    mouse {
+        bindings = <
+            &trans &trans &trans &trans &trans &trans      &trans &trans &mkp LCLK &mkp MCLK &mkp RCLK &trans
+            &trans &trans &trans &trans &trans &trans      &trans &trans &trans    &mo 4     &trans    &trans
+            &trans &trans &trans &trans &trans &trans      &trans &trans &trans    &trans    &trans    &trans
+            &trans &trans               &trans &trans      &trans &trans                     &trans    &trans
+        >;
     };
 };
 };
