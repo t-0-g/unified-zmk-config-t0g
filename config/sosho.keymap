@@ -17,6 +17,15 @@
             compatible = "zmk,behavior-encoder-mouse-scroll";
             #sensor-binding-cells = <2>;
         };
+
+        //エンコーダで日本語/英語入力を切り替える
+        //1つ目が左回し(かな=日本語)、2つ目が右回し(英数=英語)
+        ec_ime: ec_ime {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&kp LANG1>, <&kp LANG2>;
+            tap-ms = <20>;
+        };
     };
 };
 
@@ -64,8 +73,9 @@ keymap {
             &kp LSHFT  &kp Z   &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp SLASH &kp LSHFT
             &kp ESC    &kp LALT              &mo 2  &kp SPACE  &mo 1  &kp LA(GRAVE)              &mo 3     &kp LGUI
         >;
-		//&ec_ms_lとrは、上のビヘイビアで作ったもの。
-        sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT &ec_ms_r SCRL_DOWN SCRL_UP>;
+		//&ec_ms_rと&ec_imeは、上のビヘイビアで作ったもの。
+		//左手のエンコーダは左に回すと日本語、右に回すと英語入力になります。
+        sensor-bindings = <&ec_ime &ec_ms_r SCRL_DOWN SCRL_UP>;
     };
 	
     layer_1 {
